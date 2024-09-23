@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "ourlGDztLT3PrMTldxYrHcv8loaLuKok1fRKJlXl8rs=",
+  "Source": "FXChangeWebAPI",
+  "BasePath": "_content/FXChangeWebAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,48 @@
+[
+  {
+    "ContainingType": "FXChangeWebAPI.Features.GenericFeature\u002BGenericFeatureEndpoint\u002B\u003C\u003Ec",
+    "Method": "\u003CMapEndpoint\u003Eb__0_0",
+    "RelativePath": "",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ],
+    "Tags": [
+      "Generic"
+    ],
+    "EndpointName": "GenericFeature"
+  },
+  {
+    "ContainingType": "FXChangeWebAPI.Features.Commands.CaptureFXRates\u002BCaptureFXRatesEndpoint\u002B\u003C\u003Ec",
+    "Method": "\u003CMapEndpoint\u003Eb__0_0",
+    "RelativePath": "FXRates/CaptureFXRates",
+    "HttpMethod": "POST",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "command",
+        "Type": "FXChangeWebAPI.Features.Commands.CaptureFXRates\u002BCommand",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ],
+    "Tags": [
+      "FXRates"
+    ],
+    "EndpointName": "CaptureFXRates"
+  }
+]
