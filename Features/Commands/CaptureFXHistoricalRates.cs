@@ -7,18 +7,19 @@ using FXChangeWebAPI.Domain.Models;
 using FXChangeWebAPI.Endpoints;
 using FXChangeWebAPI.Utils;
 using MediatR;
+using System.Globalization;
 
 namespace FXChangeWebAPI.Features.Commands;
 
-public static class CaptureFXRates
+public static class CaptureFXHistoricalRates
 {
     public class Command : IRequest<FResult<bool>>
     {
         public string BaseCurrency { get; set; } = string.Empty;
         //public DateTime CrntDate { get; set; }
         public string CurrencyPair { get; set; } = string.Empty;
-        //public string StartDate { get; set; } = string.Empty;
-        //public string EndDate { get; set; } = string.Empty;
+        public string StartDate { get; set; } = string.Empty;
+        public string EndDate { get; set; } = string.Empty;
 
     }
 
@@ -53,13 +54,26 @@ public static class CaptureFXRates
         {
             try
             {
-                DateTime startDate = new DateTime(DateTime.UtcNow.Year, 1, 1);
-                DateTime endDate = DateTime.UtcNow;
+                DateTime  startDate, endDate;
+                string pattern = "yyyy-MM-dd";
 
+                if (!(DateTime.TryParseExact(request.StartDate, pattern, null, DateTimeStyles.None, out startDate)))
+                {
+                    return new FResult<bool>(new Error("", "Fecha de inicio inválida."));
+                }
+
+                if (!(DateTime.TryParseExact(request.EndDate, pattern, null, DateTimeStyles.None, out endDate)))
+                {
+                    return new FResult<bool>(new Error("", "Fecha de final inválida."));
+                }
+
+               
                 if (startDate > endDate)
                 {
                     return new FResult<bool>(new Error("", "La fecha de inicio no puede ser posterior a la fecha de fin."));
                 }
+
+                List<Quote> quoteList = new();
 
                 for (var date = startDate; date <= endDate; date = date.AddDays(1))
                 {
@@ -85,16 +99,6 @@ public static class CaptureFXRates
                         return new FResult<bool>(new Error("", "Api consulta sin resultado."));
                     }
 
-                    var rates = new Dictionary<string, decimal>();
-
-                    if (api_result.Value.Rates != null)
-                    {
-                        foreach (var rate in api_result.Value.Rates)
-                        {
-                            rates[rate.Key] = rate.Value;
-                        }
-                    }
-
                     DateTime combinedDateTime = new DateTime(
                         date.Year,
                         date.Month,
@@ -103,7 +107,6 @@ public static class CaptureFXRates
                         DateTimeServices.CurrentDateTime().Minute,
                         DateTimeServices.CurrentDateTime().Second
                     );
-                    // DateTime crntDate = request.CrntDate.Value;
 
                     //Cotizacion 
                     Quote quote = new(
@@ -114,13 +117,14 @@ public static class CaptureFXRates
                         low: api_result.Value.Low,
                         close: api_result.Value.Rates?.First().Value ?? 0m);
 
-                    await _context.Quotes.AddAsync(quote);
+                    quoteList.Add(quote);
+                }
 
-                    await _context.SaveChangesAsync();
-                }                
+                await _context.Quotes.AddRangeAsync(quoteList);
+
+                await _context.SaveChangesAsync();
 
                 return true;
-                //return new FResult<FXRateDto>(new FXRateDto());
             }
             catch (Exception ex)
             {
@@ -133,28 +137,30 @@ public static class CaptureFXRates
 
 
     //solicitud HTTP
-    public class CaptureFXRatesEndpoint : IEndpoint
-    {
-        public void MapEndpoint(IEndpointRouteBuilder app)
-        {
-            app.MapPost("FXRates/CaptureFXRates", async (Command command, IMediator mediator) =>
-            {
-                // Envía el comando a través de MediatR para que lo maneje el Handler correspondiente.
-                var result = await mediator.Send(command);
+    
+}
 
-                return result.IsSuccess switch
-                {
-                    true => Results.Ok(result.Value),
-                    false => Results.BadRequest(result.Error)
-                };
+public class CaptureFXHistoricalRatesEndpoint : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        app.MapPost("FXRates/CaptureFXHistRates", async (CaptureFXHistoricalRates.Command command, IMediator mediator) =>
+        {
+            // Envía el comando a través de MediatR para que lo maneje el Handler correspondiente.
+            var result = await mediator.Send(command);
+
+            return result.IsSuccess switch
+            {
+                true => Results.Ok(result.Value),
+                false => Results.BadRequest(result.Error)
+            };
+        })
+            .WithName("CaptureFXHistoricalRates")
+            .WithOpenApi(operation => new(operation)
+            {
+                Summary = "Capturar informacion historica de API externa",
+                Description = "Esta funcionalidad permite capturar informacion externa de las tasas de cambio historicas."
             })
-                .WithName("CaptureFXRates")
-                .WithOpenApi(operation => new(operation)
-                {
-                    Summary = "Capturar informacion de API externa",
-                    Description = "Esta funcionalidad permite capturar informacion externa de las tasas de cambio."
-                })
-                .WithTags("FXRates");
-        }
+            .WithTags("FXRates");
     }
 }

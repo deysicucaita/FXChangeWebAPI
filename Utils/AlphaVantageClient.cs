@@ -1,41 +1,31 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using FXChangeWebAPI.Data_Transfer;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 
 public class AlphaVantageClient
 {
-    private static readonly HttpClient client = new HttpClient();
-    private const string apiKey = "W9ORZD6PWGK18YFM";  
+    private readonly HttpClient _httpClient;
+    private readonly string _apiKey;
 
-    public async Task<FXRateDto> GetFXRatesAsync(string fromCurrency, string toCurrency)
+    public AlphaVantageClient(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
-        var url = $"https://www.alphavantage.co/query?function=FX_DAILY&from_symbol={fromCurrency}&to_symbol={toCurrency}&apikey={apiKey}";
-        var response = await client.GetStringAsync(url);
+        _httpClient = httpClientFactory.CreateClient("ForeignExchangeAPI");
+        _apiKey = configuration["AlphaVantage:ApiKey"];
+    }
 
-        var jsonData = JObject.Parse(response);
-        var timeSeries = jsonData["Time Series FX (Daily)"];
+    public async Task<T> GetExchangeRateAsync<T>(string function, string symbol)
+    {
+        string url = $"query?function={function}&symbol={symbol}&apikey={_apiKey}";
 
-        if (timeSeries == null)
-        {
-            throw new Exception("No se encontraron datos.");
-        }
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
 
-        // Obtener la fecha más reciente
-        var latestDate = timeSeries.First.Path;
-        var latestData = timeSeries[latestDate];
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(jsonResponse);
+    }
 
-        // Crear un objeto FXRateDto con los datos obtenidos
-        var fxRate = new FXRateDto
-        {
-            CrntDate = DateTime.Parse(latestDate),
-            Open = decimal.Parse(latestData["1. open"].ToString()),
-            High = decimal.Parse(latestData["2. high"].ToString()),
-            Low = decimal.Parse(latestData["3. low"].ToString()),
-            Close = decimal.Parse(latestData["4. close"].ToString())
-        };
 
-        return fxRate;
+    public class AlphaVantageResponseDto
+    {
+        [JsonProperty("Time Series (Daily)")]
+        public Dictionary<string, Dictionary<string, string>> TimeSeries { get; set; }
     }
 }

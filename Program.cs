@@ -10,7 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddEndpoints();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.CustomSchemaIds(type => type.FullName);
+});
 
 // Add DbContext for SQL Server.
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -20,31 +23,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddHttpClient("ForeignExchangeAPI", client =>
 {
 
-    client.BaseAddress = new Uri("https://api.exchangeratesapi.io/v1/");
+    client.BaseAddress = new Uri("https://www.alphavantage.co/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
     // Configura otros aspectos del HttpClient si es necesario.
 });
 
-// API fixer.io
-builder.Services.AddHttpClient("FixerClient", client =>
-{
-    client.BaseAddress = new Uri("http://data.fixer.io/api/");
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-});
-
-//API Alpha Vantage
-builder.Services.AddHttpClient("AlphaVantageClient", client =>
-{
-    client.BaseAddress = new Uri("https://www.alphavantage.co/query");
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-});
-
-// Registrar FixerApiClient y AlphaVantageApiClient como servicios
-builder.Services.AddTransient<FixerApiClient>();
+// Registrar AlphaVantageApiClient como servicios
 builder.Services.AddTransient<AlphaVantageClient>();
 
 // registra IFXRatesApiClient con su implementación
 builder.Services.AddTransient<IFXRatesApiClient, FXRatesApiClient>();
+builder.Services.AddTransient<AlphaVantageClient, AlphaVantageClient>();
 
 var app = builder.Build();
 

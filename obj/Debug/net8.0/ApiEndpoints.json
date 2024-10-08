@@ -1,12 +1,18 @@
 [
   {
-    "ContainingType": "FXChangeWebAPI.Features.GenericFeature\u002BGenericFeatureEndpoint\u002B\u003C\u003Ec",
+    "ContainingType": "FXChangeWebAPI.Features.Commands.CaptureAlphaVange\u002BCaptureFXRatesEndpoint\u002B\u003C\u003Ec",
     "Method": "\u003CMapEndpoint\u003Eb__0_0",
-    "RelativePath": "",
-    "HttpMethod": "GET",
+    "RelativePath": "FXRates/CaptureAlphaVange",
+    "HttpMethod": "POST",
     "IsController": false,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "command",
+        "Type": "FXChangeWebAPI.Features.Commands.CaptureAlphaVange\u002BCommand",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Void",
@@ -15,9 +21,35 @@
       }
     ],
     "Tags": [
-      "Generic"
+      "FXRates"
     ],
-    "EndpointName": "GenericFeature"
+    "EndpointName": "CaptureAlphaVange"
+  },
+  {
+    "ContainingType": "FXChangeWebAPI.Features.Commands.CaptureFXHistoricalRatesEndpoint\u002B\u003C\u003Ec",
+    "Method": "\u003CMapEndpoint\u003Eb__0_0",
+    "RelativePath": "FXRates/CaptureFXHistRates",
+    "HttpMethod": "POST",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "command",
+        "Type": "FXChangeWebAPI.Features.Commands.CaptureFXHistoricalRates\u002BCommand",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ],
+    "Tags": [
+      "FXRates"
+    ],
+    "EndpointName": "CaptureFXHistoricalRates"
   },
   {
     "ContainingType": "FXChangeWebAPI.Features.Commands.CaptureFXRates\u002BCaptureFXRatesEndpoint\u002B\u003C\u003Ec",
@@ -44,5 +76,41 @@
       "FXRates"
     ],
     "EndpointName": "CaptureFXRates"
+  },
+  {
+    "ContainingType": "FXChangeWebAPI.Features.Queries.GetFXPriceByPeriodEndpoint\u002B\u003C\u003Ec",
+    "Method": "\u003CMapEndpoint\u003Eb__0_0",
+    "RelativePath": "FXRates/GetFXPriceByPeriod",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "currencyPair",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "startDate",
+        "Type": "System.DateTime",
+        "IsRequired": true
+      },
+      {
+        "Name": "endDate",
+        "Type": "System.DateTime",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ],
+    "Tags": [
+      "FXRates"
+    ],
+    "EndpointName": "GetFXPriceByPeriod"
   }
 ]
